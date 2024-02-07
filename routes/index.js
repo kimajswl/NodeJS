@@ -16,32 +16,50 @@
 //
 // module.exports = router;
 
-const http = require('http');
 const express = require('express');
 const router = express.Router();
-const app = express;
-const port = 8887;
+const mysql = require('mysql');
 
-function onRequest(req, res) {
-  res.writeHead(200, {'Content-Type' : 'text/plain'});
-  res.write('hello nodejs')
-  res.end()
+const app = express();
 
-}
+// MySQL 연결 설정
+const dbConfig = {
+  host: 'localhost',
+  user: 'root',
+  password: '1004',
+  port: 3307,
+  database: 'nodejs'
+};
 
-http.createServer(onRequest).listen(8888);
+// MySQL 연결 생성
+const connection = mysql.createConnection(dbConfig);
 
-console.log('안되나?')
-
-
-
-router.get('/test', (req, res) => {
-  res.send('Hello Express!!!!!!!')
+// MySQL 연결
+connection.connect((err) => {
+  if (err) {
+    console.error('MySQL 연결 오류: ' + err.stack);
+    return;
+  }
+  console.log('MySQL 서버에 연결됨');
 });
 
-// router.listen(port, () => {
-//   console.log('Example app listening on port 3000!')
-// });
+// 루트 경로에서 모든 사용자 데이터 가져오기
+router.get('/', (req, res) => {
+  connection.query('SELECT * FROM users', (error, results, fields) => {
+    if (error) {
+      console.error('쿼리 오류: ' + error.stack);
+      res.status(500).send('데이터베이스 쿼리 오류');
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// 서버 실행
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`서버가 ${PORT} 포트에서 실행 중`);
+});
+
 
 module.exports = router;
-

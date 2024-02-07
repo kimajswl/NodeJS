@@ -17,12 +17,12 @@ console.log('안되나?')
 
 
 
-app.get('/test', (req, res) => {
+router.get('/test11', (req, res) => {
     res.send('Hello Express!!!!!!!')
 });
 
-app.listen(port, () => {
-    console.log('Example app listening on port 3000!')
-});
+// app.listen(port, () => {
+//     console.log('Example app listening on port 3000!')
+// });
 
 module.exports = router;
