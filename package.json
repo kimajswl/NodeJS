@@ -1,17 +1,28 @@
 {
-  "name": "untitled1",
-  "version": "0.0.0",
+  "name": "express-mysql-example",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node server.js"
   },
   "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "ejs": "~2.6.1",
-    "express": "~4.16.1",
-    "http-errors": "~1.6.3",
-    "morgan": "~1.9.1",
-    "mysql": "^2.18.1"
-  }
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.9.1",
+    "sequelize": "^6.36.0"
+  },
+  "main": "/Users/dclab/Downloads/untitled1/routes/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kimajswl/NodeJS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kimajswl/NodeJS/issues"
+  },
+  "homepage": "https://github.com/kimajswl/NodeJS#readme",
+  "description": ""
 }
