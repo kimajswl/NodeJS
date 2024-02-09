@@ -2,7 +2,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-// sequelize 추가하기
+// npm install --save cors 추가하기
 
 const app = express();
 
