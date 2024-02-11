@@ -14,7 +14,7 @@ const login = async(req, res) => { // 사용자 정보 받아서 토큰 만들�
         username: username,
     },SECRET_KEY, {
         expiresIn: refreshTokenTime,
-        issuer: '나'
+        issuer: '나ㅋ'
         });
 
     return res.status(200).json({
