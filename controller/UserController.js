@@ -2,7 +2,7 @@ const db = require("../models");
 
 const User = db.users;
 
-const addUser = async (req, res) => {
+const signup = async (req, res) => {
     let info = {
         username: req.body.username,
         password: req.body.password,
@@ -40,7 +40,7 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
-    addUser,
+    signup,
     getUser,
     getAllUsers,
     updateUser,
