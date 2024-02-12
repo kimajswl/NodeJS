@@ -2,9 +2,12 @@
 
 const jwt = require("jsonwebtoken");
 let {refreshToken} = require("mysql/lib/protocol/Auth");
+const db = require("../models");
 const SECRET_KEY = "c5eef9effaf8feb06fe4223b042f0d58e8d62b065ab5c1762452f1e81c1a682d076783570c56c8fd30721dc8a15f625321a8f27f903733d35d010b870af256c1";
 const refreshTokenTime = 24 * 60 * 60 * 1000;
 const accessTokenTime = 30 * 60 * 1000;
+
+const RefreshToken = db.refreshToken;
 
 const login = async(req, res) => { // 사용자 정보 받아서 토큰 만들고 토큰에 넣기
     const username = req.body.username;
@@ -16,6 +19,13 @@ const login = async(req, res) => { // 사용자 정보 받아서 토큰 만들�
         expiresIn: refreshTokenTime,
         issuer: '나ㅋ'
         });
+
+    let info = {
+        token: refreshToken
+    };
+
+    const newRefreshToken = await RefreshToken.create(info).catch((err) => console.log(err));
+    res.status(200).send(newRefreshToken);
 
     return res.status(200).json({
         code: 200,

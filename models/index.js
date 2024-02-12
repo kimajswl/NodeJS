@@ -56,19 +56,26 @@ const sequelize = new Sequelize(
     config
 );
 
-mysqlDB.Sequelize = Sequelize;
-mysqlDB.sequelize = sequelize;
+// const refreshTokenSequelize = new Sequelize(
+//     config.database,
+//     config.token,
+//     config
+// );
 
-sequelize
-    .sync({ force: false })
-    .then(() => {
-      console.log("데이터베이스 연결됨.");
-    })
-    .catch((err) => {
-      console.error(err);
-    });
+// mysqlDB.Sequelize = Sequelize;
+// mysqlDB.sequelize = sequelize;
+//
+// sequelize
+//     .sync({ force: false })
+//     .then(() => {
+//       console.log("데이터베이스 연결됨.");
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//     });
 
 mysqlDB.users = require("./User.js")(sequelize, DataTypes);
+mysqlDB.refreshToken = require("./RefreshToken.js")(sequelize, DataTypes);
 
 module.exports = mysqlDB;
 
