@@ -1,24 +1,28 @@
-
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
-// npm install --save cors 추가하기
-
 const app = express();
 
-var corsOptions = {
-    origin: "http://localhost:8081"
+var corOptions = {
+    origin: "https://localhost:3000",
 };
 
-app.use(cors(corsOptions));
+app.set("port", process.env.PORT || 3000);
 
-app.use(bodyParser.json());
+app.use(cors(corOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-app.use(bodyParser.urlencoded({ extended: true }));
+require("./models/index");
 
-const db = require('mysql2');
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
+app.get("/", (req, res) => {
+    res.json({ message: "hello world" });
 });
+
+app.listen(app.get("port"), () => {
+    console.log(app.get("port"), "번 포트에서 대기 중");
+});
+
+require("./models/index.js");
+
+const router = require("./routers/UserRouter.js");
+app.use("/api", router);

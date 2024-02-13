@@ -1,4 +1,3 @@
-// TODO. 엑세스 토큰 부분 추가, 비밀번호 암호화하는거 알아보고 적용하기
 
 const jwt = require("jsonwebtoken");
 let {refreshToken} = require("mysql/lib/protocol/Auth");
@@ -9,10 +8,10 @@ const accessTokenTime = 30 * 60 * 1000;
 
 const RefreshToken = db.refreshToken;
 
-const login = async(req, res) => { // 사용자 정보 받아서 토큰 만들고 토큰에 넣기
+const login = async(req, res) => {
     const username = req.body.username;
 
-    refreshToken = jwt.sign({
+    const refreshToken = jwt.sign({
         type: 'JWT',
         username: username,
     },SECRET_KEY, {
@@ -20,20 +19,36 @@ const login = async(req, res) => { // 사용자 정보 받아서 토큰 만들�
         issuer: '나ㅋ'
         });
 
-    let info = {
-        token: refreshToken
-    };
+    const accessToken = jwt.sign({
+        type: 'JWT',
+        username: username,
+    },SECRET_KEY, {
+        expiresIn: accessTokenTime,
+        issuer: '나ㅋ'
+    });
 
-    const newRefreshToken = await RefreshToken.create(info).catch((err) => console.log(err));
-    res.status(200).send(newRefreshToken);
+    res.json({accessToken, refreshToken })
+}
 
-    return res.status(200).json({
-        code: 200,
-        message: '토큰이 발급되었습니다.',
-        token: refreshToken
+const protectedService = async(req, res) => {
+    res.send("authorized")
+}
+
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization']; // 소문자로 해야 헤더 값을 불러올 수 있음
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
     });
 }
 
 module.exports = {
-    login
+    login,
+    authenticateToken,
+    protectedService
 }
