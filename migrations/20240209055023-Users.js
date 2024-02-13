@@ -14,8 +14,7 @@ module.exports = {
       password: {
         type: Sequelize.STRING(20),
         allowNull: false,
-      },
-      refreshToken: Sequelize.STRING(16000),
+      }
     });
   },
 

@@ -1,14 +1,13 @@
 
 const jwt = require("jsonwebtoken");
-let {refreshToken} = require("mysql/lib/protocol/Auth");
 const db = require("../models");
 const SECRET_KEY = "c5eef9effaf8feb06fe4223b042f0d58e8d62b065ab5c1762452f1e81c1a682d076783570c56c8fd30721dc8a15f625321a8f27f903733d35d010b870af256c1";
-const refreshTokenTime = 24 * 60 * 60 * 1000;
-const accessTokenTime = 30 * 60 * 1000;
+const refreshTokenTime = 24 * 60 * 60 * 1000; // 하루
+const accessTokenTime = 30 * 60 * 1000; // 30분
 
 const RefreshToken = db.refreshToken;
 
-const login = async(req, res) => {
+const login = async(req, res) => { // 로그인과 동시에 accessToken, refreshToken 발급
     const username = req.body.username;
 
     const refreshToken = jwt.sign({
@@ -30,7 +29,7 @@ const login = async(req, res) => {
     res.json({accessToken, refreshToken })
 }
 
-const protectedService = async(req, res) => {
+const protectedService = async(req, res) => { // 성공
     res.send("authorized")
 }
 

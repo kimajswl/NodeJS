@@ -13,6 +13,6 @@ router.delete("/deleteUser/:id", userController.deleteUser);
 // JWT 인증
 router.post("/login",authController.login );
 router.get("/protected", authController.authenticateToken, authController.protectedService);
-
+// authenticateToken에서 오류 없이 잘 넘어가면 protectedService 실행
 
 module.exports = router;
