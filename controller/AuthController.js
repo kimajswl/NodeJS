@@ -26,20 +26,20 @@ const login = async(req, res) => { // 로그인과 동시에 accessToken, refres
         issuer: '나ㅋ'
     });
 
-    res.json({accessToken, refreshToken })
+    res.json({ accessToken, refreshToken })
 }
 
-const protectedService = async(req, res) => { // 성공
+const protectedService = async(req, res) => { // 성공 시 실행
     res.send("authorized")
 }
 
-function authenticateToken(req, res, next) {
+function authenticateToken(req, res, next) { // 토큰 인증
     const authHeader = req.headers['authorization']; // 소문자로 해야 헤더 값을 불러올 수 있음
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token == null) return res.sendStatus(401);
 
-    jwt.verify(token, SECRET_KEY, (err, user) => {
+    jwt.verify(token, SECRET_KEY, (err, user) => { // 인증
         if (err) return res.sendStatus(403);
         req.user = user;
         next();
