@@ -7,11 +7,13 @@ const accessTokenTime = 30 * 60 * 1000; // 30분
 
 const RefreshToken = db.refreshToken;
 
+
+// TODO. 토큰 재발급
 const login = async(req, res) => { // 로그인과 동시에 accessToken, refreshToken 발급
     const username = req.body.username;
 
     const refreshToken = jwt.sign({
-        type: 'JWT',
+        type: 'RefreshToken',
         username: username,
     },SECRET_KEY, {
         expiresIn: refreshTokenTime,
@@ -19,10 +21,10 @@ const login = async(req, res) => { // 로그인과 동시에 accessToken, refres
         });
 
     const accessToken = jwt.sign({
-        type: 'JWT',
+        type: 'AccessToken',
         username: username,
     },SECRET_KEY, {
-        expiresIn: accessTokenTime,
+        expiresIn: "30s",
         issuer: '나ㅋ'
     });
 
@@ -39,8 +41,24 @@ function authenticateToken(req, res, next) { // 토큰 인증
 
     if (token == null) return res.sendStatus(401);
 
+    const tokenType = jwt.decode(token).type;
+    if (tokenType == 'AccessToken') {
+        return res.sendStatus(200).message("액세스 토큰 잘 들어옴~")
+    }
+
     jwt.verify(token, SECRET_KEY, (err, user) => { // 인증
-        if (err) return res.sendStatus(403);
+        if (err.name == 'TokenExpiredFrror') {
+            return res.sendStatus(401).json({
+                code: 401,
+                message: '토큰이 만료되었습니다.',
+            });
+        }
+        else if(err) {
+            return res.sendStatus(403).json({
+               code: 403,
+               message : '유효하지 않은 토큰입니다.',
+            });
+        }
         req.user = user;
         next();
     });
