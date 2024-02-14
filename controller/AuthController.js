@@ -44,7 +44,7 @@ function authenticateToken(req, res, next) { // 토큰 인증
     const tokenType = jwt.decode(token).type;
     if (tokenType == 'AccessToken') {
         return res.sendStatus(200).message("액세스 토큰 잘 들어옴~")
-    }
+    } // 만약에 accessToken이 만료가 되었다면 refreshToken으로 재발급하고, 만약에 refreshToken이 만료가 되었다면 둘다 재발급 받기
 
     jwt.verify(token, SECRET_KEY, (err, user) => { // 인증
         if (err.name == 'TokenExpiredFrror') {
