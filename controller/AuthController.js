@@ -43,7 +43,9 @@ function authenticateToken(req, res, next) { // 토큰 인증
 
     const tokenType = jwt.decode(token).type;
     if (tokenType == 'AccessToken') {
-        return res.sendStatus(200).message("액세스 토큰 잘 들어옴~")
+        if (err.name == 'TokenExpiredFrror') {
+
+        }
     } // 만약에 accessToken이 만료가 되었다면 refreshToken으로 재발급하고, 만약에 refreshToken이 만료가 되었다면 둘다 재발급 받기
 
     jwt.verify(token, SECRET_KEY, (err, user) => { // 인증
@@ -64,8 +66,92 @@ function authenticateToken(req, res, next) { // 토큰 인증
     });
 }
 
+// function verifyRefreshToken(refreshToken) {
+//     return new Promise((resolve, reject) => {
+//         jwt.verify(refreshToken, SECRET_KEY, (err, decoded) => {
+//             if (err) reject(err);
+//             resolve(decoded);
+//         });
+//     });
+// }
+//
+// function issueAccessToken(username) {
+//     const accessToken = jwt.sign({
+//         type: 'AccessToken',
+//         username: username,
+//     },SECRET_KEY, {
+//         expiresIn: "30s",
+//         issuer: '나ㅋ'
+//     });
+//     return accessToken;
+// }
+//
+// function refreshTokenHandler22(req, res) { // access 토큰이 나오면 바로 종료됨
+//     const { refreshToken } = req.body.refreshToken;
+//
+//     try {
+//         // refresh token을 검증하여 payload를 가져옴
+//         const decoded = verifyRefreshToken(refreshToken);
+//
+//         // payload에서 username을 가져와서 새로운 access token 발급
+//         const accessToken = issueAccessToken(decoded.username);
+//
+//         // 발급한 access token을 클라이언트에게 응답
+//         res.json({ accessToken });
+//     } catch (err) {
+//         console.error('Error refreshing token:', err);
+//         res.status(403).json({ error: 'Invalid refresh token' });
+//     }
+// }
+
+function generateAccessToken(refreshToken) {
+    try {
+        // Refresh Token 검증
+        const decoded = jwt.verify(refreshToken, SECRET_KEY);
+
+        // 사용자 정보 추출 (예: 사용자 ID)
+        const userId = decoded.username;
+
+
+        // 새로운 Access Token 생성
+        const accessToken = jwt.sign({ userId }, secretKey, { expiresIn: accessTokenExpireTime });
+
+        // 생성된 Access Token 반환
+        return accessToken;
+    } catch (error) {
+        // Refresh Token이 유효하지 않은 경우
+        throw new Error('Refresh Token is invalid or expired');
+    }
+}
+
+// Refresh Token을 이용하여 새로운 Access Token을 생성하고 반환하는 라우터 핸들러
+const refreshExpiredToken = (req, res) => {
+    const { refreshToken } = req.body;
+
+    try {
+        // 새로운 Access Token 생성
+        const accessToken = generateAccessToken(refreshToken);
+
+        // 생성된 Access Token을 클라이언트에게 반환
+        res.status(200).json({ accessToken });
+    } catch (error) {
+        // Refresh Token이 만료된 경우
+        if (error.message === 'Refresh Token is invalid or expired') {
+            res.status(401).json({ error: 'error' }); // 여기서 자꾸 걸림 refreshToken 만료 시간을 좀 업청 짧게 주고 지나면 넣어서 다시 해보기
+
+        } else {
+            // 기타 오류 처리
+            res.status(500).send('Internal Server Error');
+        }
+    }
+};
+
+
+
+
 module.exports = {
     login,
     authenticateToken,
-    protectedService
+    protectedService,
+    refreshExpiredToken
 }
