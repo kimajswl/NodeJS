@@ -69,7 +69,7 @@ function generateAccessToken(refreshToken) {
         // Refresh Token 검증
         const decoded = jwt.verify(refreshToken, SECRET_KEY);
 
-        // 사용자 정보 추출 (예: 사용자 ID)
+        // 사용자 이름 추출
         const userId = decoded.username;
 
 
@@ -105,9 +105,6 @@ const refreshExpiredToken = (req, res) => {
         }
     }
 };
-
-
-
 
 module.exports = {
     login,
