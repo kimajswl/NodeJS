@@ -7,8 +7,6 @@ const accessTokenTime = 30 * 60 * 1000; // 30분
 
 const RefreshToken = db.refreshToken;
 
-
-// TODO. 토큰 재발급
 const login = async(req, res) => { // 로그인과 동시에 accessToken, refreshToken 발급
     const username = req.body.username;
 
@@ -65,44 +63,6 @@ function authenticateToken(req, res, next) { // 토큰 인증
         next();
     });
 }
-
-// function verifyRefreshToken(refreshToken) {
-//     return new Promise((resolve, reject) => {
-//         jwt.verify(refreshToken, SECRET_KEY, (err, decoded) => {
-//             if (err) reject(err);
-//             resolve(decoded);
-//         });
-//     });
-// }
-//
-// function issueAccessToken(username) {
-//     const accessToken = jwt.sign({
-//         type: 'AccessToken',
-//         username: username,
-//     },SECRET_KEY, {
-//         expiresIn: "30s",
-//         issuer: '나ㅋ'
-//     });
-//     return accessToken;
-// }
-//
-// function refreshTokenHandler22(req, res) { // access 토큰이 나오면 바로 종료됨
-//     const { refreshToken } = req.body.refreshToken;
-//
-//     try {
-//         // refresh token을 검증하여 payload를 가져옴
-//         const decoded = verifyRefreshToken(refreshToken);
-//
-//         // payload에서 username을 가져와서 새로운 access token 발급
-//         const accessToken = issueAccessToken(decoded.username);
-//
-//         // 발급한 access token을 클라이언트에게 응답
-//         res.json({ accessToken });
-//     } catch (err) {
-//         console.error('Error refreshing token:', err);
-//         res.status(403).json({ error: 'Invalid refresh token' });
-//     }
-// }
 
 function generateAccessToken(refreshToken) {
     try {
