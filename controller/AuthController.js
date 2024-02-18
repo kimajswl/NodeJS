@@ -30,12 +30,12 @@ const login = async(req, res) => { // 로그인과 동시에 accessToken, refres
     res.json({ accessToken, refreshToken })
 }
 
-const protectedService = async(req, res) => { // 성공 시 실행
+const protectedService = async(req, res) => {
     res.send("authorized")
 }
 
-function authenticateToken(req, res, next) { // 토큰 인증
-    const authHeader = req.headers['authorization']; // 소문자로 해야 헤더 값을 불러올 수 있음
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token == null) return res.sendStatus(401);
@@ -67,15 +67,9 @@ function authenticateToken(req, res, next) { // 토큰 인증
 
 function generateAccessToken(refreshToken) {
     try {
-
-        // Refresh Token 검증
         const decoded = jwt.verify(refreshToken, SECRET_KEY);
-
-        // 사용자 이름 추출
         const username = decoded.username;
 
-
-        // 새로운 Access Token 생성
         const accessToken = jwt.sign({
             type: 'AccessToken',
             username: username,
@@ -84,31 +78,24 @@ function generateAccessToken(refreshToken) {
             issuer: username
         });
 
-        // 생성된 Access Token 반환
         return accessToken;
     } catch (error) {
-        // Refresh Token이 유효하지 않은 경우
         throw new Error('Refresh Token is invalid or expired');
     }
 }
 
-// Refresh Token을 이용하여 새로운 Access Token을 생성하고 반환하는 라우터 핸들러
-const refreshExpiredToken = (req, res) => {
+const refreshExpiredToken = (req, res) => { // 임시로 만료 시간이 안되어도 그냥 재발급 받을 수 있도록 함
     const refreshToken = req.body.refreshToken;
 
     try {
-        // 새로운 Access Token 생성
         const accessToken = generateAccessToken(refreshToken);
 
-        // 생성된 Access Token을 클라이언트에게 반환
         res.status(200).json({ accessToken });
     } catch (error) {
-        // Refresh Token이 만료된 경우
         if (error.message === 'Refresh Token is invalid or expired') {
-            res.status(401).json({ error: 'Refresh Token is invalid or expired' }); // 여기서 자꾸 걸림 refreshToken 만료 시간을 좀 업청 짧게 주고 지나면 넣어서 다시 해보기
+            res.status(401).json({ error: 'Refresh Token is invalid or expired' });
 
         } else {
-            // 기타 오류 처리
             res.status(500).send('Internal Server Error');
         }
     }
