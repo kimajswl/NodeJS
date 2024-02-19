@@ -1,34 +1,46 @@
 const jwt = require("jsonwebtoken");
 const db = require("../models");
+const User = db.users;
 const SECRET_KEY = "c5eef9effaf8feb06fe4223b042f0d58e8d62b065ab5c1762452f1e81c1a682d076783570c56c8fd30721dc8a15f625321a8f27f903733d35d010b870af256c1";
 // const refreshTokenTime = 24 * 60 * 60 * 1000; // 하루
 const refreshTokenTime = 30 * 1000;
 const accessTokenTime = 30 * 1000;
 // const accessTokenTime = 30 * 60 * 1000; // 30분
 
-const RefreshToken = db.refreshToken;
+const login = async(req, res) => {
+    const { username, password } = req.body;
 
-const login = async(req, res) => { // 로그인과 동시에 accessToken, refreshToken 발급
-    const username = req.body.username.toString();
+    try {
+        let user = await User.findOne({ where: { username: username } }).catch((err) =>
+            console.log(err)
+        );
+        if (user && user.password === password) {
+            const refreshToken = jwt.sign({
+                type: 'RefreshToken',
+                username: username,
+            }, SECRET_KEY, {
+                expiresIn: refreshTokenTime,
+                issuer: username
+            });
 
-    const refreshToken = jwt.sign({
-        type: 'RefreshToken',
-        username: username,
-    },SECRET_KEY, {
-        expiresIn: refreshTokenTime,
-        issuer: username
-        });
+            const accessToken = jwt.sign({
+                type: 'AccessToken',
+                username: username,
+            }, SECRET_KEY, {
+                expiresIn: accessTokenTime,
+                issuer: username
+            });
 
-    const accessToken = jwt.sign({
-        type: 'AccessToken',
-        username: username,
-    },SECRET_KEY, {
-        expiresIn: accessTokenTime,
-        issuer: username
-    });
-
-    res.json({ accessToken, refreshToken })
+            res.json({ accessToken, refreshToken });
+        } else {
+            res.status(401).json({ error: '아이디 또는 비밀번호가 틀립니다.' });
+        }
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: '로그인 중 문제가 생겼습니다.' });
+    }
 }
+
 
 const protectedService = async(req, res) => {
     res.send("authorized")
@@ -45,7 +57,7 @@ function authenticateToken(req, res, next) {
         return res.sendStatus(401);
     }
 
-    jwt.verify(token, SECRET_KEY, (err, user) => { // 인증
+    jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) {
             if (err.name === 'TokenExpiredError') {
                 return res.status(401).json({
